@@ -1,0 +1,124 @@
+# Metric Catalog — Delinquency Benchmarking Agent
+#
+# Each entry is one queryable metric. This file is the single source of truth
+# for business-logic metadata. Adding a metric, supporting a new product, or
+# changing a default requires editing only this file — no Python changes.
+#
+# Field reference
+# ---------------
+# metric_id           Unique key; what the planner puts in QuerySpec.metric_id.
+# label               Human-readable name used in answers and citations.
+# formula             coincidence | lagged | roll_rate | avg_score
+# measure_col         num_accounts | os_amount_mn
+# default_bucket      DPD bucket used when the spec does not override (optional).
+# default_at_or_worse true = "bucket or worse" (e.g. 90+); false = exact bucket.
+# default_lag_months  Default lag for lagged formula (optional).
+# from_bucket         Roll-rate: the "prior" bucket in the transition.
+# to_bucket           Roll-rate: the "current" bucket in the transition.
+# applies_to          List of product codes this metric is valid for.
+#                     Add a product here to expose this metric for it.
+# comparisons_allowed List of comparison types the semantic layer may compute.
+
+metrics:
+
+  # ── Coincidence (snapshot share of total book, same month) ────────────────
+
+  - metric_id: coincidence_acct_pct
+    label: "Delinquency Rate (Accounts, Coincidence)"
+    formula: coincidence
+    measure_col: num_accounts
+    default_bucket: b90
+    default_at_or_worse: true
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  - metric_id: coincidence_os_pct
+    label: "Delinquency Rate (Outstanding, Coincidence)"
+    formula: coincidence
+    measure_col: os_amount_mn
+    default_bucket: b90
+    default_at_or_worse: true
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  # ── Lagged (cohort vs its own base N months earlier) ──────────────────────
+
+  - metric_id: lagged_acct_pct
+    label: "Delinquency Rate (Accounts, Lagged)"
+    formula: lagged
+    measure_col: num_accounts
+    default_bucket: b90
+    default_at_or_worse: true
+    default_lag_months: 3
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  - metric_id: lagged_os_pct
+    label: "Delinquency Rate (Outstanding, Lagged)"
+    formula: lagged
+    measure_col: os_amount_mn
+    default_bucket: b90
+    default_at_or_worse: true
+    default_lag_months: 3
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  # ── Roll rates (flow between adjacent buckets, month-over-month) ──────────
+  # Each transition is its own metric so the planner resolves unambiguously.
+  # Formula is always by accounts (standard market convention).
+
+  - metric_id: roll_rate_x_30
+    label: "Roll Rate: X-Day → 30 DPD"
+    formula: roll_rate
+    measure_col: num_accounts
+    from_bucket: x_day
+    to_bucket: b30
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  - metric_id: roll_rate_30_60
+    label: "Roll Rate: 30 → 60 DPD"
+    formula: roll_rate
+    measure_col: num_accounts
+    from_bucket: b30
+    to_bucket: b60
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  - metric_id: roll_rate_60_90
+    label: "Roll Rate: 60 → 90 DPD"
+    formula: roll_rate
+    measure_col: num_accounts
+    from_bucket: b60
+    to_bucket: b90
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  - metric_id: roll_rate_90_120
+    label: "Roll Rate: 90 → 120 DPD"
+    formula: roll_rate
+    measure_col: num_accounts
+    from_bucket: b90
+    to_bucket: b120
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  - metric_id: roll_rate_to_writeoff
+    label: "Roll Rate: 180+ → Write-off"
+    formula: roll_rate
+    measure_col: num_accounts
+    from_bucket: b180_plus
+    to_bucket: newly_writeoff
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, ranking, index]
+
+  # ── Average risk score ────────────────────────────────────────────────────
+
+  - metric_id: avg_score
+    label: "Average Risk Score"
+    formula: avg_score
+    measure_col: num_accounts   # weight column for the weighted average
+    default_bucket: b90
+    default_at_or_worse: false
+    applies_to: [credit_card]
+    comparisons_allowed: [market_share, index]  # ranking on score is uncommon

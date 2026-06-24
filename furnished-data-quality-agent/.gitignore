@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Env / secrets
+.env
+.venv/
+venv/
+
+# Caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Generated data / artifacts
+data/
+*.duckdb
+lineage.jsonl
+
+# OS / editor
+.DS_Store

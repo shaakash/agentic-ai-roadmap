@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "furnished-data-quality-agent"
+version = "0.0.1"
+description = "Governed multi-agent system for detecting and remediating data-quality anomalies in furnished credit data, with a deterministic rule engine and human-in-the-loop. Synthetic data."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary - internal scaffold" }
+
+# NOTE: versions are intentionally left unpinned in this scaffold.
+# Pin exact versions (and add a lockfile) before first implementation PR.
+dependencies = [
+    "pydantic>=2",        # typed contracts: record, anomaly, rule, action, lineage
+    "pydantic-settings",  # env-driven settings
+    "pandas",             # batch shaping + synthetic data
+    "numpy",              # synthetic distributions
+    "duckdb",             # local store for batches + lineage queries
+    "pyyaml",             # the rule catalog is config-as-data (YAML)
+    "fastapi",            # service API
+    "uvicorn",            # ASGI server
+    "httpx",              # HTTP transport
+    # --- agent / LLM stack ---
+    "langgraph",          # multi-agent orchestration (StateGraph)
+    "langchain-core",     # message/tool primitives
+    "langchain-openai",   # ChatOpenAI with structured output
+    # --- safety for generated rule code ---
+    "RestrictedPython",   # static + sandboxed execution of agent-generated checks
+    # --- observability ---
+    "opentelemetry-sdk",
+    "opentelemetry-api",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+# The deterministic core (generate, run) is real; pipeline/eval are wired to stubs.
+dq-generate = "dq_agent.data.generate:main"
+dq-run = "dq_agent.rules.engine:main"
+dq-pipeline = "dq_agent.agents.graph:main"
+dq-eval = "dq_agent.eval.harness:main"
+dq-api = "dq_agent.api.app:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

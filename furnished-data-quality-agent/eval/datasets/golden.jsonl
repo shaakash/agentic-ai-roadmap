@@ -1,0 +1,10 @@
+{"case": "dlp_before_open", "expected_rule": "T01", "note": "last payment 2019 but account opened 2020", "record": {"date_opened": "2020-01-01", "date_reported": "2023-01-01", "date_of_last_payment": "2019-06-01"}}
+{"case": "closed_before_open", "expected_rule": "T02", "note": "closed before opened", "record": {"date_opened": "2020-01-01", "date_closed": "2019-12-01", "account_status": "13", "current_balance": 0}}
+{"case": "reported_before_open", "expected_rule": "T03", "note": "as-of date precedes open", "record": {"date_opened": "2021-06-22", "date_reported": "2020-07-29"}}
+{"case": "dlp_after_reported", "expected_rule": "T04", "note": "last payment after as-of date", "record": {"date_opened": "2020-01-01", "date_reported": "2022-08-08", "date_of_last_payment": "2022-09-19"}}
+{"case": "balance_drop_no_payment", "expected_rule": "B01", "note": "balance fell with zero payment", "record": {"prior_balance": 2000, "current_balance": 1500, "actual_payment_amount": 0}}
+{"case": "balance_over_limit", "expected_rule": "B02", "note": "revolving balance over limit", "record": {"portfolio_type": "R", "credit_limit": 5000, "current_balance": 7601.19}}
+{"case": "status_rating_mismatch", "expected_rule": "R01", "note": "current status, delinquent rating", "record": {"account_status": "11", "payment_rating": "3"}}
+{"case": "closed_with_balance", "expected_rule": "R02", "note": "closed/paid but positive balance", "record": {"account_status": "13", "current_balance": 2892.26}}
+{"case": "invalid_status_code", "expected_rule": "F01", "note": "status code not in domain", "record": {"account_status": "ZZ"}}
+{"case": "duplicate_record", "expected_rule": "D01", "note": "identical row within batch", "record": {"consumer_id": "C1", "account_number": "AC1", "date_reported": "2023-01-01", "current_balance": 1000}}

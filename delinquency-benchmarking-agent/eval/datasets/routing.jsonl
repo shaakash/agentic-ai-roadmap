@@ -1,0 +1,3 @@
+{"question": "What does the lagged 90-dpd rate mean?", "gold_intent": "definition"}
+{"question": "What is my 90+ dpd O/S rate in 2024-Q2?", "gold_intent": "metric"}
+{"question": "How does my 30 to 60 roll rate rank versus peers, and is it worsening?", "gold_intent": "benchmark"}

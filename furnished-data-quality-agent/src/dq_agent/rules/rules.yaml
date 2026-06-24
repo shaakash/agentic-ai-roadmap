@@ -1,0 +1,105 @@
+# Rule catalog - the deterministic detection logic, as data.
+#
+# Each rule names a `check_ref` -> a vetted function in rules/checks.py.
+# Only `status: active` rules run on a batch. Agent-authored candidate rules are
+# appended here (status: candidate) ONLY after passing sandbox validation and human
+# approval; they carry generated_code instead of a check_ref.
+#
+# severity: low | medium | high | critical
+
+version: "1.0.0"
+
+rules:
+  - rule_id: T01
+    name: last-payment-before-open
+    category: temporal
+    severity: high
+    status: active
+    check_ref: dlp_before_open
+    description: >
+      Date of last payment falls before the account open date - a payment cannot
+      occur before the account exists.
+
+  - rule_id: T02
+    name: closed-before-open
+    category: temporal
+    severity: high
+    status: active
+    check_ref: closed_before_open
+    description: >
+      Account closed date is earlier than its open date.
+
+  - rule_id: T03
+    name: reported-before-open
+    category: temporal
+    severity: high
+    status: active
+    check_ref: reported_before_open
+    description: >
+      Reported (as-of) date is earlier than the account open date.
+
+  - rule_id: T04
+    name: last-payment-after-reported
+    category: temporal
+    severity: medium
+    status: active
+    check_ref: dlp_after_reported
+    description: >
+      Date of last payment is later than the file's as-of (reported) date.
+
+  - rule_id: B01
+    name: balance-drop-no-payment
+    category: balance
+    severity: medium
+    status: active
+    check_ref: balance_drop_no_payment
+    description: >
+      Current balance decreased versus the prior cycle even though no payment was
+      reported this cycle.
+
+  - rule_id: B02
+    name: balance-over-limit
+    category: balance
+    severity: medium
+    status: active
+    check_ref: balance_over_limit
+    description: >
+      Revolving account balance exceeds the stated credit limit beyond tolerance.
+
+  - rule_id: R01
+    name: status-rating-mismatch
+    category: referential
+    severity: medium
+    status: active
+    check_ref: status_rating_mismatch
+    description: >
+      Account status indicates current while the payment rating indicates
+      delinquency.
+
+  - rule_id: R02
+    name: closed-with-balance
+    category: referential
+    severity: high
+    status: active
+    check_ref: closed_with_balance
+    description: >
+      Account is closed/paid but still reports a positive balance.
+
+  - rule_id: F01
+    name: invalid-status-code
+    category: format
+    severity: low
+    status: active
+    check_ref: invalid_status_code
+    description: >
+      Account status or payment rating is outside the allowed code domain.
+
+  - rule_id: D01
+    name: duplicate-record
+    category: duplicate
+    severity: high
+    status: active
+    check_ref: duplicate_record   # batch-level check
+    description: >
+      Duplicate account row within the same batch (same consumer, account, as-of
+      date and balance) - risks double-counting downstream.

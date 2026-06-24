@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Secrets / config
+.env
+
+# Generated data + indexes (synthetic, but regenerable - keep out of git)
+data/
+corpus/*.generated/
+*.duckdb
+*.parquet
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

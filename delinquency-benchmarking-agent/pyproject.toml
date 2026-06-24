@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "delinquency-benchmarking-agent"
+version = "0.0.1"
+description = "Governed conversational analytics agent over a synthetic credit-bureau delinquency benchmarking report."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary - internal scaffold" }
+
+# NOTE: versions are intentionally left unpinned in this scaffold.
+# Pin exact versions (and add a lockfile) before first implementation PR.
+dependencies = [
+    "duckdb",          # local analytical store for the synthetic panel
+    "pandas",          # data shaping for the generator
+    "numpy",           # synthetic distributions
+    "pydantic>=2",     # typed config + schema models
+    "pydantic-settings", # env-driven settings
+    "fastapi",         # agent API surface
+    "uvicorn",         # ASGI server
+    # --- agent / LLM stack ---
+    "langgraph",            # orchestration graph (StateGraph with conditional edges)
+    "langchain-core",       # message/tool primitives
+    "langchain-openai",     # ChatOpenAI with structured output (tool-calling)
+    # --- retrieval (definitions corpus) ---
+    "chromadb",        # local vector store for the RAG corpus (all-MiniLM via ONNX)
+    "pyyaml",          # metric catalog loaded from semantic/metrics.yaml
+    # --- observability ---
+    "opentelemetry-sdk",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+# Wired to stubs today; see src/delinquency_agent/*.
+delq-generate = "delinquency_agent.data.generate:main"
+delq-corpus = "delinquency_agent.knowledge.corpus:main"
+delq-eval = "delinquency_agent.eval.harness:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
